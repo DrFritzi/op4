@@ -153,6 +153,69 @@ DevicePanel::DevicePanel(QWidget* parent) : ListWidget(parent) {
   });
 
   addItem(reset_layout);
+  
+  // Settings and buttons - JPR
+    main_layout->addWidget(horizontal_line());
+    const char* gitpull = "sh /data/openpilot/gitpull.sh";
+    auto gitpullbtn = new ButtonControl("Git Pull and Reboot", "RUN");
+    QObject::connect(gitpullbtn, &ButtonControl::clicked, [=]() {
+      std::system(gitpull);
+      if (ConfirmationDialog::confirm("Process completed successfully. Reboot?", this)){
+        QTimer::singleShot(1000, []() { Hardware::reboot(); });
+      }
+    });
+    main_layout->addWidget(gitpullbtn);
+    main_layout->addWidget(horizontal_line());
+  
+    const char* panda_flash = "sh /data/openpilot/panda/board/flash.sh";
+    auto pandaflashbtn = new ButtonControl("Flash Panda Firmware", "RUN");
+    QObject::connect(pandaflashbtn, &ButtonControl::clicked, [=]() {
+      std::system(panda_flash);
+      if (ConfirmationDialog::confirm("Process Completed. Reboot?", this)){
+        QTimer::singleShot(1000, []() { Hardware::reboot(); });
+      }
+    });
+    main_layout->addWidget(pandaflashbtn);
+    main_layout->addWidget(horizontal_line());
+  
+    const char* panda_recover = "sh /data/openpilot/panda/board/recover.sh";
+    auto pandarecoverbtn = new ButtonControl("Panda Recover Firmware", "RUN");
+    QObject::connect(pandarecoverbtn, &ButtonControl::clicked, [=]() {
+      std::system(panda_recover);
+      if (ConfirmationDialog::confirm("Process Completed. Reboot?", this)){
+        QTimer::singleShot(1000, []() { Hardware::reboot(); });
+      }
+    });
+    main_layout->addWidget(pandarecoverbtn);
+    main_layout->addWidget(horizontal_line());
+    auto nTune = new ButtonControl("Run nTune AutoTune for lateral.", "nTune", "Run this after 20 or so miles of driving, to Auto Tune Lateral control.");
+    QObject::connect(nTune, &ButtonControl::clicked, [=]() { 
+      if (Params().getBool("IsOffroad") && ConfirmationDialog::confirm("Run nTune? This Lags click only ONCE please be patient.", this)){
+        std::system("cd /data/openpilot/selfdrive && python ntune.py");
+        if (ConfirmationDialog::confirm("nTune Ran Successfully.", this)){
+        }    
+      }
+    });
+    main_layout->addWidget(nTune);
+    main_layout->addWidget(horizontal_line());
+  
+    auto SR = new ButtonControl("Delete all UI Screen Recordings", "DELETE", "This Deletes all UI Screen recordings from /storage/emulated/0/videos");
+    QObject::connect(SR, &ButtonControl::clicked, [=]() {
+      if (ConfirmationDialog::confirm("Are you sure you want to delete all UI Screen Recordings?", this)){
+        std::system("cd /storage/emulated/0/videos && rm *.*");
+        ConfirmationDialog::confirm("Successfully Deleted All UI Screen Recordings.", this);      
+      }
+    });
+    main_layout->addWidget(SR);
+    main_layout->addWidget(horizontal_line());
+  
+    auto APN = new ButtonControl("Open Android Settings", "SETTINGS", "Opens Android Settings to adjust APN / Sim Card Settings, to exit settings without reboot click on `Printers` in Android Settings");
+    QObject::connect(APN, &ButtonControl::clicked, [=]() { 
+     if (ConfirmationDialog::confirm("Want to open Android Settings? Reboot required to exit.", this)) {
+      std::system("am start -a android.settings.SETTINGS");
+      }
+    });
+    main_layout->addWidget(APN);
 
   // offroad-only buttons
 
