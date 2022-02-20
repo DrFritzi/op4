@@ -151,10 +151,12 @@ DevicePanel::DevicePanel(QWidget* parent) : ListWidget(parent) {
       });
     }
   });
+  addItem(reset_layout);
 
+  QVBoxLayout *main_layout = new QVBoxLayout(this);
   
   // Settings and buttons - JPR
-    reset_layout->addWidget(horizontal_line());
+    main_layout->addWidget(horizontal_line());
     const char* gitpull = "sh /data/openpilot/gitpull.sh";
     auto gitpullbtn = new ButtonControl("Git Pull and Reboot", "RUN");
     QObject::connect(gitpullbtn, &ButtonControl::clicked, [=]() {
@@ -163,8 +165,8 @@ DevicePanel::DevicePanel(QWidget* parent) : ListWidget(parent) {
         QTimer::singleShot(1000, []() { Hardware::reboot(); });
       }
     });
-    reset_layout->addWidget(gitpullbtn);
-    reset_layout->addWidget(horizontal_line());
+    main_layout->addWidget(gitpullbtn);
+    main_layout->addWidget(horizontal_line());
   
     const char* panda_flash = "sh /data/openpilot/panda/board/flash.sh";
     auto pandaflashbtn = new ButtonControl("Flash Panda Firmware", "RUN");
@@ -174,8 +176,8 @@ DevicePanel::DevicePanel(QWidget* parent) : ListWidget(parent) {
         QTimer::singleShot(1000, []() { Hardware::reboot(); });
       }
     });
-    reset_layout->addWidget(pandaflashbtn);
-    reset_layout->addWidget(horizontal_line());
+    main_layout->addWidget(pandaflashbtn);
+    main_layout->addWidget(horizontal_line());
   
     const char* panda_recover = "sh /data/openpilot/panda/board/recover.sh";
     auto pandarecoverbtn = new ButtonControl("Panda Recover Firmware", "RUN");
@@ -185,8 +187,8 @@ DevicePanel::DevicePanel(QWidget* parent) : ListWidget(parent) {
         QTimer::singleShot(1000, []() { Hardware::reboot(); });
       }
     });
-    reset_layout->addWidget(pandarecoverbtn);
-    reset_layout->addWidget(horizontal_line());
+    main_layout->addWidget(pandarecoverbtn);
+    main_layout->addWidget(horizontal_line());
     auto nTune = new ButtonControl("Run nTune AutoTune for lateral.", "nTune", "Run this after 20 or so miles of driving, to Auto Tune Lateral control.");
     QObject::connect(nTune, &ButtonControl::clicked, [=]() { 
       if (Params().getBool("IsOffroad") && ConfirmationDialog::confirm("Run nTune? This Lags click only ONCE please be patient.", this)){
@@ -195,8 +197,8 @@ DevicePanel::DevicePanel(QWidget* parent) : ListWidget(parent) {
         }    
       }
     });
-    reset_layout->addWidget(nTune);
-    reset_layout->addWidget(horizontal_line());
+    main_layout->addWidget(nTune);
+    main_layout->addWidget(horizontal_line());
   
     auto SR = new ButtonControl("Delete all UI Screen Recordings", "DELETE", "This Deletes all UI Screen recordings from /storage/emulated/0/videos");
     QObject::connect(SR, &ButtonControl::clicked, [=]() {
@@ -205,8 +207,8 @@ DevicePanel::DevicePanel(QWidget* parent) : ListWidget(parent) {
         ConfirmationDialog::confirm("Successfully Deleted All UI Screen Recordings.", this);      
       }
     });
-    reset_layout->addWidget(SR);
-    reset_layout->addWidget(horizontal_line());
+    main_layout->addWidget(SR);
+    main_layout->addWidget(horizontal_line());
   
     auto APN = new ButtonControl("Open Android Settings", "SETTINGS", "Opens Android Settings to adjust APN / Sim Card Settings, to exit settings without reboot click on `Printers` in Android Settings");
     QObject::connect(APN, &ButtonControl::clicked, [=]() { 
@@ -214,10 +216,10 @@ DevicePanel::DevicePanel(QWidget* parent) : ListWidget(parent) {
       std::system("am start -a android.settings.SETTINGS");
       }
     });
-    reset_layout->addWidget(APN);
+    main_layout->addWidget(APN);
+    addItem(main_layout);
     
     
-  addItem(reset_layout);
 
   // offroad-only buttons
 
